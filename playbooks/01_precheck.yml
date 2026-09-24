@@ -1,0 +1,21 @@
+---
+- name: NetDevOps - Fabric Pre-Flight Checks
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Test HTTPS eAPI reachability
+      ansible.builtin.ping:
+
+    - name: Gather Arista EOS facts via eAPI
+      arista.eos.eos_facts:
+        gather_subset:
+          - min
+      register: eos_facts
+
+    - name: Display switch system health
+      ansible.builtin.debug:
+        msg: >-
+          Hostname: {{ ansible_net_hostname }} |
+          Model: {{ ansible_net_model }} |
+          EOS Version: {{ ansible_net_version }} |
+          Uptime: {{ (ansible_net_uptime | default(0) | int / 86400) | round(2) }} days

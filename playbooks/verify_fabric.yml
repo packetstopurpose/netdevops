@@ -1,0 +1,27 @@
+---
+- name: NetDevOps - Fabric Operational Verification
+  hosts: all
+  gather_facts: false
+  become: true
+  become_method: enable
+  tasks:
+    - name: Gather device facts and system state
+      arista.eos.eos_facts:
+        gather_subset:
+          - default
+
+    - name: Gather BGP summary state via eAPI command
+      arista.eos.eos_command:
+        commands:
+          - show ip bgp summary
+      register: bgp_summary
+
+    - name: Display operational status summary
+      ansible.builtin.debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "EOS Version: {{ ansible_net_version | default('N/A') }}"
+          - "Model: {{ ansible_net_model | default('N/A') }}"
+          - "Uptime (sec): {{ ansible_net_uptime | default('N/A') }}"
+          - "BGP Summary Output:"
+          - "{{ bgp_summary.stdout[0].split('\n') }}"

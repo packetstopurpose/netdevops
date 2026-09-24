@@ -1,0 +1,8 @@
+role: leaf
+vlans:
+  - id: 10
+    name: WEB_DATA
+  - id: 20
+    name: APP_DATA
+  - id: 30
+    name: DB_DATA

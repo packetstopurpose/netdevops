@@ -1,0 +1,14 @@
+# System & User files
+.*
+!.gitignore
+!.github/
+
+# Archives & container images
+*.tar.xz
+*.tar
+
+# Containerlab generated runtime directory
+clab-*/
+
+#GitHub Runner Directory
+actions-runner*/
