@@ -1,0 +1,37 @@
+name: NetDevOps Fabric CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-and-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Pre-Flight eAPI Reachability
+        run: |
+          ansible-playbook -i inventory/hosts.yml playbooks/01_precheck.yml
+
+      - name: Render Local Configurations
+        run: |
+          ansible-playbook -i inventory/hosts.yml playbooks/generate_config.yml
+
+      - name: CI - Pre-Flight Dry-Run Diff (Pull Request Only)
+        if: github.event_name == 'pull_request'
+        run: |
+          ansible-playbook -i inventory/hosts.yml playbooks/deploy_config.yml --check --diff
+
+      - name: CD - Live Fabric Deployment (Merge to Main Only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          ansible-playbook -i inventory/hosts.yml playbooks/deploy_config.yml
+
+      - name: Post-Deployment Verification
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          ansible-playbook -i inventory/hosts.yml playbooks/verify_fabric.yml
